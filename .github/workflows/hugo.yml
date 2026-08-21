@@ -54,6 +54,32 @@ jobs:
             --gc \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
+      
+      - name: Create standalone version
+        run: |
+          test -s public/index.html
+      
+          if grep -q '{{' public/index.html
+          then
+            echo "Unprocessed Hugo template instructions found."
+            exit 1
+          fi
+      
+          if ! grep -q -- "--green0" public/index.html
+          then
+            echo "CSS was not embedded."
+            exit 1
+          fi
+      
+          if ! grep -q "CURRICULUM_COURSES" public/index.html
+          then
+            echo "Curriculum data was not embedded."
+            exit 1
+          fi
+      
+          cp public/index.html public/Course-Atlas.html
+      
+          echo "Rendered website created successfully."
 
       - name: Validate output
         run: |
