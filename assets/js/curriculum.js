@@ -253,12 +253,28 @@ function render() {
   applyPrereqMode();
 }
 el('search').addEventListener('input', () => {
-  const q = el('search').value.trim().toLowerCase();
+  const q = el('search')
+    .value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+
+  // Enable filtering only while the search field contains a query.
+  world.classList.toggle('searching', q.length > 0);
+
   document.querySelectorAll('.course').forEach(box => {
-	const c = courseById[box.dataset.id],
-	  hit = !q || `${c.code} ${c.name}`.toLowerCase().includes(q);
-	box.classList.toggle('search-miss', !hit);
-	box.classList.toggle('search-hit', !!q && hit)
+    const course = courseById[box.dataset.id];
+
+    const searchableText = `${course.code} ${course.name}`
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+
+    const isMatch = searchableText.includes(q);
+
+    box.classList.toggle(
+      'search-miss',
+      q.length > 0 && !isMatch
+    );
   });
 });
 /* ================================================================
