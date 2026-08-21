@@ -26,13 +26,21 @@ for (const [term, arr] of Object.entries(byTerm)) {
 	y: PAD_Y + offset + i * ROW_H
   });
 }
-const worldW = PAD_X * 2 + (termCount - 1) * COL_W + BOX_W,
-  worldH = PAD_Y * 2 + maxRows * ROW_H;
+const worldW = PAD_X * 2 + (termCount - 1) * COL_W + BOX_W, worldH = PAD_Y * 2 + maxRows * ROW_H;
 let taken = new Set();
 try {
-  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-  taken = new Set(saved.filter(id => COURSES.some(c => c.id === id)));
-} catch {}
+  const saved = JSON.parse(
+    localStorage.getItem(STORE_KEY) || "[]",
+  );
+
+  taken = new Set(
+    saved.filter((id) =>
+      COURSES.some((course) => course.id === id),
+    ),
+  );
+} catch {
+  taken = new Set();
+}
 const world = document.querySelector('#world'),
   svg = document.querySelector('#edges'),
   viewport = document.querySelector('#viewport');
@@ -118,7 +126,15 @@ function isAvailable(c) {
 }
 
 function save() {
-  localStorage.setItem(STORE_KEY, JSON.stringify([...taken]));
+  try {
+    localStorage.setItem(
+      STORE_KEY,
+      JSON.stringify([...taken]),
+    );
+  } catch {
+    // Completion still works for the current session when
+    // browser storage is unavailable.
+  }
 }
 
 function toggle(id) {
