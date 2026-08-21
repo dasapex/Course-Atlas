@@ -229,6 +229,8 @@ header p:last-child {
 }
 .header-actions > .download-button {
   display: inline-block;
+  appearance: none;
+  font: inherit;
   text-decoration: none;
 }
 .header-actions > .theme-toggle:hover,
