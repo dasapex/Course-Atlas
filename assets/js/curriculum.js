@@ -3,6 +3,9 @@
 Curriculum data and map layout
 ================================================================ */
 const COURSES = window.CURRICULUM_COURSES;
+if (!Array.isArray(COURSES) || COURSES.length === 0) {
+  throw new Error("The curriculum database contains no courses.");
+}
 const STORE_KEY = 'feu-bsce-curriculum-progress-v2';
 const THEME_KEY = 'feu-curriculum-theme';
 const COL_W = 282,
