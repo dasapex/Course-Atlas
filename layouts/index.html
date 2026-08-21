@@ -192,18 +192,26 @@
     </div>
     {{ $courses := site.Data.courses }}
     
+    {{ if not $courses }}
+      {{ errorf "Missing or empty data/courses.json" }}
+    {{ end }}
+    
     <script>
       window.CURRICULUM_COURSES =
-        {{ $courses | jsonify | safeJS }};
+        {{ $courses | jsonify | safe.JS }};
     </script>
     
-    {{ with resources.Get "js/curriculum.js" | minify }}
-      <script>
-        {{ .Content | safeJS }}
-      </script>
-    {{ else }}
-      {{ errorf "assets/js/curriculum.js was not found" }}
+    {{ $curriculumJS := resources.Get "js/curriculum.js" }}
+    
+    {{ if not $curriculumJS }}
+      {{ errorf "Missing assets/js/curriculum.js" }}
     {{ end }}
+    
+    {{ $curriculumJS = $curriculumJS | minify }}
+    
+    <script>
+      {{ $curriculumJS.Content | safe.JS }}
+    </script>
 
   </body>
 </html>
