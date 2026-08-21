@@ -5,4 +5,5 @@ Course Atlas is a free, open-source curriculum tracking web app designed to help
 > **This is an unofficial, student-built open-source project created for personal educational tracking purposes. It is not affiliated with, endorsed by, or representative of Far Eastern University (FEU) or the FEU Institute of Technology.**
 
 [![Launch Course Atlas](https://img.shields.io/badge/Launch-Course%20Atlas-1F7A4D?style=for-the-badge&logo=githubpages&logoColor=white)](https://dasapex.github.io/Course-Atlas/index.html)
+
 No installation is required. Course Atlas runs directly in your browser.
