@@ -8,13 +8,17 @@
 
     <meta name="description" content="{{ site.Params.description }}" />
 
-    {{ with resources.Get "css/curriculum.css" | minify }}
-      <style>
-        {{ .Content | safeCSS }}
-      </style>
-    {{ else }}
-      {{ errorf "assets/css/curriculum.css was not found" }}
+    {{ $curriculumCSS := resources.Get "css/curriculum.css" }}
+
+    {{ if not $curriculumCSS }}
+      {{ errorf "Missing assets/css/curriculum.css" }}
     {{ end }}
+    
+    {{ $curriculumCSS = $curriculumCSS | minify }}
+    
+    <style>
+      {{ $curriculumCSS.Content | safe.CSS }}
+    </style>
     
     <script>
       /*
@@ -32,10 +36,6 @@
     </script>
   </head>
   <body>
-    {{ $styles := resources.Get "css/curriculum.css" | minify | fingerprint }}
-
-    <link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}" />
-
     <header>
       <button
         id="themeBtn"
