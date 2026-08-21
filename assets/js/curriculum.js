@@ -6,7 +6,7 @@ const COURSES = window.CURRICULUM_COURSES;
 if (!Array.isArray(COURSES) || COURSES.length === 0) {
   throw new Error("The curriculum database contains no courses.");
 }
-const STORE_KEY = 'feu-bsce-curriculum-progress-v2';
+const STORE_KEY = window.CURRICULUM_STORE_KEY || 'feu-bsce-curriculum-progress-v2';
 const THEME_KEY = 'feu-curriculum-theme';
 const COL_W = 282,
   ROW_H = 128,
@@ -50,12 +50,15 @@ svg.setAttribute('width', worldW);
 svg.setAttribute('height', worldH);
 const termNames = ['1st Term', '2nd Term', '3rd Term'];
 for (let t = 1; t <= termCount; t++) {
+  const customLabel = window.CURRICULUM_TERM_LABELS?.[t - 1];
   const label = document.createElement('div');
   label.className = 'term-label';
   label.style.left = (PAD_X + (t - 1) * COL_W) + 'px';
   label.style.top = (PAD_Y - 48) + 'px';
   label.style.width = BOX_W + 'px';
-  label.innerHTML = `Year ${Math.ceil(t/3)}<small>${termNames[(t-1)%3]}</small>`;
+  label.innerHTML = customLabel
+    ? `${customLabel.year}<small>${customLabel.term}</small>`
+    : `Year ${Math.ceil(t/3)}<small>${termNames[(t-1)%3]}</small>`;
   world.append(label);
 }
 const NS = 'http://www.w3.org/2000/svg';
@@ -253,28 +256,15 @@ function render() {
   applyPrereqMode();
 }
 el('search').addEventListener('input', () => {
-  const q = el('search')
-    .value
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ');
+  const q = el('search').value.trim().toLowerCase().replace(/\s+/g, ' ');
 
-  // Enable filtering only while the search field contains a query.
+  /* The CSS filter is scoped to this state so clearing search restores every card. */
   world.classList.toggle('searching', q.length > 0);
 
   document.querySelectorAll('.course').forEach(box => {
-    const course = courseById[box.dataset.id];
-
-    const searchableText = `${course.code} ${course.name}`
-      .toLowerCase()
-      .replace(/\s+/g, ' ');
-
-    const isMatch = searchableText.includes(q);
-
-    box.classList.toggle(
-      'search-miss',
-      q.length > 0 && !isMatch
-    );
+	const c = courseById[box.dataset.id];
+	const searchableText = `${c.code} ${c.name}`.toLowerCase().replace(/\s+/g, ' ');
+	box.classList.toggle('search-miss', q.length > 0 && !searchableText.includes(q));
   });
 });
 /* ================================================================
