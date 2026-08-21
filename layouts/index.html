@@ -1,40 +1,36 @@
 <!DOCTYPE html>
 <html lang="{{ site.Language.LanguageCode }}" data-theme="light">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>{{ site.Title }}</title>
-
-    <meta name="description" content="{{ site.Params.description }}" />
-
-    {{ $curriculumCSS := resources.Get "css/curriculum.css" }}
-
-    {{ if not $curriculumCSS }}
-      {{ errorf "Missing assets/css/curriculum.css" }}
-    {{ end }}
-    
-    {{ $curriculumCSS = $curriculumCSS | minify }}
-    
-    <style>
-      {{ $curriculumCSS.Content | safe.CSS }}
-    </style>
-    
-    <script>
-      /*
-       * Apply the saved color theme before rendering to prevent
-       * a light-mode flash.
-       */
-      try {
-        const savedTheme = localStorage.getItem("feu-curriculum-theme");
-
-        const preferredTheme =
-          savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-
-        document.documentElement.dataset.theme = preferredTheme;
-      } catch {}
-    </script>
-  </head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+      <title>{{ site.Title }}</title>
+  
+      <meta name="description" content="{{ site.Params.description }}" />
+  
+      {{ with resources.Get "css/curriculum.css" | minify }}
+        <style>
+          {{ .Content | safeCSS }}
+        </style>
+      {{ else }}
+        {{ errorf "assets/css/curriculum.css was not found" }}
+      {{ end }}
+  
+      <script>
+        /*
+         * Apply the saved color theme before rendering to prevent
+         * a light-mode flash.
+         */
+        try {
+          const savedTheme = localStorage.getItem("feu-curriculum-theme");
+  
+          const preferredTheme =
+            savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  
+          document.documentElement.dataset.theme = preferredTheme;
+        } catch {}
+      </script>
+    </head>
   <body>
     <header>
       <button
