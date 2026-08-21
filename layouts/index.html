@@ -1,48 +1,63 @@
 <!DOCTYPE html>
 <html lang="{{ site.Language.LanguageCode }}" data-theme="light">
   <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
-      <title>{{ site.Title }}</title>
-  
-      <meta name="description" content="{{ site.Params.description }}" />
-  
-      {{ with resources.Get "css/curriculum.css" | minify }}
-        <style>
-          {{ .Content | safeCSS }}
-        </style>
-      {{ else }}
-        {{ errorf "assets/css/curriculum.css was not found" }}
-      {{ end }}
-  
-      <script>
-        /*
-         * Apply the saved color theme before rendering to prevent
-         * a light-mode flash.
-         */
-        try {
-          const savedTheme = localStorage.getItem("feu-curriculum-theme");
-  
-          const preferredTheme =
-            savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  
-          document.documentElement.dataset.theme = preferredTheme;
-        } catch {}
-      </script>
-    </head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{{ site.Title }}</title>
+
+    <meta name="description" content="{{ site.Params.description }}" />
+
+    {{ with resources.Get "css/curriculum.css" | minify }}
+      <style>
+        {{ .Content | safeCSS }}
+      </style>
+    {{ else }}
+      {{ errorf "assets/css/curriculum.css was not found" }}
+    {{ end }}
+
+    <script>
+      /*
+       * Apply the saved color theme before rendering to prevent
+       * a light-mode flash.
+       */
+      try {
+        const savedTheme = localStorage.getItem("feu-curriculum-theme");
+
+        const preferredTheme =
+          savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+        document.documentElement.dataset.theme = preferredTheme;
+      } catch {}
+    </script>
+  </head>
   <body>
+    {{ $styles := resources.Get "css/curriculum.css" | minify | fingerprint }}
+
+    <link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}" />
+
     <header>
-      <button
-        id="themeBtn"
-        class="theme-toggle"
-        type="button"
-        aria-pressed="false"
-        title="Switch between light and dark mode"
-      >
-        Dark mode
-      </button>
-      <a class="theme-toggle download-button" href="Course-Atlas.html" download="Course-Atlas.html" title="Download the offline version">Offline version</a>
+      <div class="header-actions">
+        <button
+          id="offlineBtn"
+          class="download-button"
+          type="button"
+          title="Download the offline version"
+        >
+          Offline version
+        </button>
+
+        <button
+          id="themeBtn"
+          class="theme-toggle"
+          type="button"
+          aria-pressed="false"
+          title="Switch between light and dark mode"
+        >
+          Dark mode
+        </button>
+      </div>
+
       <p class="eyebrow">FEU Institute of Technology · BS Civil Engineering</p>
 
       <h1>Curriculum Map</h1>
@@ -187,25 +202,29 @@
     </div>
     {{ $courses := site.Data.courses }}
     
-    {{ if not $courses }}
-      {{ errorf "Missing or empty data/courses.json" }}
-    {{ end }}
-    
     <script>
       window.CURRICULUM_COURSES =
-        {{ $courses | jsonify | safe.JS }};
+        {{ $courses | jsonify | safeJS }};
     </script>
     
-    {{ $curriculumJS := resources.Get "js/curriculum.js" }}
-    
-    {{ if not $curriculumJS }}
-      {{ errorf "Missing assets/js/curriculum.js" }}
+    {{ with resources.Get "js/curriculum.js" | minify }}
+      <script>
+        {{ .Content | safeJS }}
+      </script>
+    {{ else }}
+      {{ errorf "assets/js/curriculum.js was not found" }}
     {{ end }}
-    
-    {{ $curriculumJS = $curriculumJS | minify }}
-    
+
     <script>
-      {{ $curriculumJS.Content | safe.JS }}
+      /* Download the currently rendered, self-contained curriculum page. */
+      document.getElementById("offlineBtn").addEventListener("click", () => {
+        const downloadLink = document.createElement("a");
+        downloadLink.href = window.location.href;
+        downloadLink.download = "Course-Atlas.html";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+      });
     </script>
 
   </body>
