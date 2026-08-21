@@ -148,6 +148,26 @@ jobs:
           echo "Website validation passed."
           find public -maxdepth 2 -type f -print
 
+      - name: Set curriculum selector as default page
+        run: |
+          set -euo pipefail
+          install -m 0644 curriculum-selector.html public/index.html
+
+          if ! cmp -s curriculum-selector.html public/index.html
+          then
+            echo "public/index.html does not match curriculum-selector.html."
+            exit 1
+          fi
+
+          if ! grep -Fq 'href="FEU-Course-Atlas.html"' public/index.html || \
+             ! grep -Fq 'href="TIP-Course-Atlas.html"' public/index.html
+          then
+            echo "The default page is not the curriculum selector."
+            exit 1
+          fi
+
+          echo "Curriculum selector confirmed as public/index.html."
+
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
