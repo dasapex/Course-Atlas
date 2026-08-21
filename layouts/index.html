@@ -8,6 +8,14 @@
 
     <meta name="description" content="{{ site.Params.description }}" />
 
+    {{ with resources.Get "css/curriculum.css" | minify }}
+      <style>
+        {{ .Content | safeCSS }}
+      </style>
+    {{ else }}
+      {{ errorf "assets/css/curriculum.css was not found" }}
+    {{ end }}
+    
     <script>
       /*
        * Apply the saved color theme before rendering to prevent
@@ -181,17 +189,20 @@
         </div>
       </div>
     </div>
-    {{ $courses := site.Data.courses }} {{ if not $courses }} {{ errorf "data/courses.json is missing or contains no courses" }} {{ end }}
+    {{ $courses := site.Data.courses }}
+    
     <script>
-      /*
-       * Hugo converts data/courses.json into a JavaScript value.
-       */
       window.CURRICULUM_COURSES =
-        {{ site.Data.courses | jsonify | safeJS }};
+        {{ $courses | jsonify | safeJS }};
     </script>
+    
+    {{ with resources.Get "js/curriculum.js" | minify }}
+      <script>
+        {{ .Content | safeJS }}
+      </script>
+    {{ else }}
+      {{ errorf "assets/js/curriculum.js was not found" }}
+    {{ end }}
 
-    {{ $script := resources.Get "js/curriculum.js" | minify | fingerprint }}
-
-    <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>
   </body>
 </html>
