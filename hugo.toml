@@ -1,0 +1,15 @@
+baseURL = "https://dasapex.github.io/Course-Atlas/"
+languageCode = 'en-PH'
+title = 'Course Atlas'
+
+disableKinds = ["taxonomy", "term", "RSS"]
+
+[params]
+description = "Interactive FEU Tech BS Civil Engineering curriculum map"
+author = "Alejandrino III Abrina"
+
+[build]
+writeStats = true
+
+[minify]
+minifyOutput = true
