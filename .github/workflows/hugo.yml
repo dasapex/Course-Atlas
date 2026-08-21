@@ -57,7 +57,22 @@ jobs:
       
       - name: Assemble deployable pages
         run: |
-          test -s public/index.html
+          set -euo pipefail
+
+          require_file() {
+            if [ ! -s "$1" ]
+            then
+              echo "Required file is missing or empty: $1"
+              exit 1
+            fi
+          }
+
+          require_file public/index.html
+          require_file curriculum-selector.html
+          require_file TIP-Course-Atlas.html
+          require_file data/course.json
+          require_file assets/css/curriculum.css
+          require_file assets/js/curriculum.js
 
           if grep -q '{{' public/index.html
           then
@@ -92,17 +107,38 @@ jobs:
 
       - name: Validate output
         run: |
-          test -s public/index.html
-          test -s public/FEU-Course-Atlas.html
-          test -s public/TIP-Course-Atlas.html
-          test -s public/course.json
-          test -s public/curriculum.css
-          test -s public/curriculum.js
+          set -euo pipefail
 
-          grep -q 'href="FEU-Course-Atlas.html"' public/index.html
-          grep -q 'href="TIP-Course-Atlas.html"' public/index.html
-          grep -q "CURRICULUM_COURSES" public/FEU-Course-Atlas.html
-          grep -q "course.json" public/TIP-Course-Atlas.html
+          require_file() {
+            if [ ! -s "$1" ]
+            then
+              echo "Deployment output is missing or empty: $1"
+              exit 1
+            fi
+          }
+
+          require_text() {
+            if ! grep -Fq "$2" "$1"
+            then
+              echo "Expected text was not found in $1: $2"
+              exit 1
+            fi
+          }
+
+          require_file public/index.html
+          require_file public/FEU-Course-Atlas.html
+          require_file public/TIP-Course-Atlas.html
+          require_file public/course.json
+          require_file public/curriculum.css
+          require_file public/curriculum.js
+
+          require_text public/index.html 'href="FEU-Course-Atlas.html"'
+          require_text public/index.html 'href="TIP-Course-Atlas.html"'
+          require_text public/FEU-Course-Atlas.html "CURRICULUM_COURSES"
+          require_text public/TIP-Course-Atlas.html "course.json"
+          require_text public/index.html "This is an unofficial, student-built open-source project"
+          require_text public/FEU-Course-Atlas.html "This is an unofficial, student-built open-source project"
+          require_text public/TIP-Course-Atlas.html "This is an unofficial, student-built open-source project"
 
           node -e "const fs=require('fs'); const courses=JSON.parse(fs.readFileSync('public/course.json','utf8')); if(!Array.isArray(courses)||!courses.length) process.exit(1)"
           node --check public/curriculum.js
