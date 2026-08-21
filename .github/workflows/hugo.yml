@@ -55,10 +55,10 @@ jobs:
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
       
-      - name: Create standalone version
+      - name: Assemble deployable pages
         run: |
           test -s public/index.html
-      
+
           if grep -q '{{' public/index.html
           then
             echo "Unprocessed Hugo template instructions found."
@@ -76,24 +76,36 @@ jobs:
             echo "Curriculum data was not embedded."
             exit 1
           fi
-      
-          cp public/index.html public/Course-Atlas.html
-      
-          echo "Rendered website created successfully."
+
+          # Preserve Hugo's rendered FEU application before the selector
+          # replaces the deployment root page.
+          mv public/index.html public/FEU-Course-Atlas.html
+
+          # Publish each source under one unambiguous deployed filename.
+          install -m 0644 curriculum-selector.html public/index.html
+          install -m 0644 TIP-Course-Atlas.html public/TIP-Course-Atlas.html
+          install -m 0644 data/course.json public/course.json
+          install -m 0644 assets/css/curriculum.css public/curriculum.css
+          install -m 0644 assets/js/curriculum.js public/curriculum.js
+
+          echo "Deployable pages assembled successfully."
 
       - name: Validate output
         run: |
           test -s public/index.html
+          test -s public/FEU-Course-Atlas.html
+          test -s public/TIP-Course-Atlas.html
+          test -s public/course.json
+          test -s public/curriculum.css
+          test -s public/curriculum.js
 
-          if ! grep -q "CURRICULUM_COURSES" public/index.html
-          then
-            echo "The curriculum database was not embedded in index.html."
-            exit 1
-          fi
+          grep -q 'href="FEU-Course-Atlas.html"' public/index.html
+          grep -q 'href="TIP-Course-Atlas.html"' public/index.html
+          grep -q "CURRICULUM_COURSES" public/FEU-Course-Atlas.html
+          grep -q "course.json" public/TIP-Course-Atlas.html
 
-          cp public/index.html public/Course-Atlas.html
-
-          test -s public/Course-Atlas.html
+          node -e "const fs=require('fs'); const courses=JSON.parse(fs.readFileSync('public/course.json','utf8')); if(!Array.isArray(courses)||!courses.length) process.exit(1)"
+          node --check public/curriculum.js
 
           echo "Website validation passed."
           find public -maxdepth 2 -type f -print
