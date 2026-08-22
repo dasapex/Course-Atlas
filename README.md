@@ -9,4 +9,4 @@ No installation is required. Course Atlas runs directly in your browser.
 
 ## Legal disclaimer
 
-> **This is an unofficial, student-built open-source project created for personal educational tracking purposes. It is not affiliated with, endorsed by, or representative of Far Eastern University (FEU) or the FEU Institute of Technology.**
+> **This is an unofficial, student-built open-source project created for personal educational tracking purposes. It is not affiliated with, endorsed by, or representative of any of the institutions whose curricula are featured or referenced.**
