@@ -7,6 +7,14 @@ A tool to track and summarize the progress of courses and units taken within a s
 
 No installation is required. Course Atlas runs directly in your browser.
 
+## What's New
+
+- FEUIT - BSCE Curriculum
+- TIP Manila - BSCE Curriculum (2023)
+- Downloadable offline copy
+- Mobile UI compatibility and optimization
+- bug fixes
+
 ## Legal disclaimer
 
 > **This is an unofficial, student-built open-source project created for educational tracking purposes. It is not affiliated with, endorsed by, or representative of any of the institutions whose curricula are featured or referenced.**
