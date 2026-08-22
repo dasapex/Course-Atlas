@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "label": "deployment",
-  "message": "offline",
-  "color": "critical",
+  "message": "online",
+  "color": "brightgreen",
   "cacheSeconds": 30
 }
