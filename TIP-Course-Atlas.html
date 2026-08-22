@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="curriculum.css">
   <script>try{const s=localStorage.getItem('feu-curriculum-theme');document.documentElement.dataset.theme=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{}</script>
 </head>
-<body>
+<body class="tip-page">
   <header>
     <div class="header-actions">
       <button id="offlineBtn" class="download-button" type="button" title="Download the TIP offline version">Offline version</button>
@@ -62,7 +62,7 @@
     <div class="reset-dialog"><h2 id="resetTitle">Reset all progress?</h2><p id="resetDescription">This will remove every course cross-out and clear the progress saved in this browser. This action cannot be undone.</p><div class="reset-actions"><button id="cancelReset" type="button">Cancel</button><button id="confirmReset" class="danger" type="button">Reset all progress</button></div></div>
   </div>
 
-  <div id="loadError" hidden role="alert" style="padding:24px;color:#b3261e;font-weight:700">TIP curriculum data could not be loaded. Confirm that course.json is deployed beside this page.</div>
+  <div id="loadError" hidden role="alert" style="padding:24px;color:var(--olive);font-weight:700">TIP curriculum data could not be loaded. Confirm that course.json is deployed beside this page.</div>
   <script>
     (async()=>{
       try{
