@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -21,9 +21,49 @@ defaults:
     shell: bash
 
 jobs:
+  mark-offline:
+    name: Mark deployment offline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Publish offline status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          status_dir="$(mktemp -d)"
+          git -C "$status_dir" init --quiet
+          git -C "$status_dir" config user.name "github-actions[bot]"
+          git -C "$status_dir" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$status_dir" remote add origin \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          if git -C "$status_dir" fetch --quiet --depth=1 origin deployment-status
+          then
+            git -C "$status_dir" checkout --quiet -B deployment-status FETCH_HEAD
+          else
+            git -C "$status_dir" checkout --quiet --orphan deployment-status
+          fi
+
+          cat > "$status_dir/deployment-status.json" <<'JSON'
+          {
+            "schemaVersion": 1,
+            "label": "deployment",
+            "message": "offline",
+            "color": "critical",
+            "cacheSeconds": 30
+          }
+          JSON
+
+          git -C "$status_dir" add deployment-status.json
+          git -C "$status_dir" commit --quiet --allow-empty -m "Mark deployment offline"
+          git -C "$status_dir" push --quiet --force origin HEAD:deployment-status
+
   build:
     name: Build website
     runs-on: ubuntu-latest
+    needs: mark-offline
 
     env:
       HUGO_VERSION: 0.148.2
@@ -186,3 +226,32 @@ jobs:
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Publish online status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          status_dir="$(mktemp -d)"
+          git -C "$status_dir" init --quiet
+          git -C "$status_dir" config user.name "github-actions[bot]"
+          git -C "$status_dir" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$status_dir" remote add origin \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$status_dir" fetch --quiet --depth=1 origin deployment-status
+          git -C "$status_dir" checkout --quiet -B deployment-status FETCH_HEAD
+
+          cat > "$status_dir/deployment-status.json" <<'JSON'
+          {
+            "schemaVersion": 1,
+            "label": "deployment",
+            "message": "online",
+            "color": "brightgreen",
+            "cacheSeconds": 30
+          }
+          JSON
+
+          git -C "$status_dir" add deployment-status.json
+          git -C "$status_dir" commit --quiet --allow-empty -m "Mark deployment online"
+          git -C "$status_dir" push --quiet --force origin HEAD:deployment-status
